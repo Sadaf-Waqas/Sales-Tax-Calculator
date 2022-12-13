@@ -1,4 +1,3 @@
-<?php ?>
 <html>
     <head>
         <title>Sales Tax Calculator</title>
@@ -22,7 +21,9 @@
                 <label>Price</label>
                 <input type="number" class="form-control item-price" placeholder="Item price"  >
             </div>
-            <div class="col-md-2">
+          <div class="col-md-2">
+              <!-- here i have created catagories, chocolate lies on food category and Music CD lies on Music-->
+              <!-- i have set data-tax as 10 for music and fragrances while they lies on goods and rest are 0-->
                 <label>Category</label>
                 <select class="form-control item-category">
                     <option value="food" data-tax="0">Food</option>
@@ -33,6 +34,7 @@
                 </select>
             </div>
             <div class="col-md-2">
+              <!-- if product is imported then user needs to select is imported--->
                 <label>Is Imported</label><br>
                 <input class="form-check-input isImported" type="checkbox" value="1" >
             </div>
@@ -55,6 +57,7 @@
     </div>
 </body>
 <script>
+    // here i have created a save functions
     $(".save").click(function(){
         let itemTitle = $('.item-name').val();
         let itemPrice = $('.item-price').val();
@@ -62,7 +65,7 @@
         let tax = $('.item-category').find(':selected').attr('data-tax');
         let isImported = $('.isImported').is(":checked");
         let isValidated = true;
-
+//it checks validation if user has written item title and price or not
         if (itemTitle === ''){
             isValidated = false;
             alert('Please enter item title')
@@ -73,26 +76,38 @@
         }
 
         if (isValidated){
+            //once validation checked and i have set datatype for summaryitem (which i used at top) is hidden because it will display all the data
             $('<input>').attr('type','hidden').attr('class','summaryItem').attr('data-title',itemTitle).attr('data-price',itemPrice).attr('data-category',category).attr('data-isImported',isImported).attr('data-tax',tax).appendTo('.summaryItems');
+            // empty form makes the itemtitle and price frields emplty once its saved
             emptyForm();
+            // i have used the calculatetotal which i created at the bottom
             calculateTotals();
         }
     });
 
     function calculateTotals() {
+        // by default i have set total and total tax value is 0 and factor is 0.005 it can vary basically it works on round of values
         let summary = '';
         let totalTax = 0;
         let total = 0;
+        let factor = 0.005;
+
+        //i have used the loop here( foreach loop)
         $('.summaryItems').find("input").each(function() {
             let itemTitle = $(this).attr('data-title');
             let itemPrice = $(this).attr('data-price');
             let category = $(this).attr('data-category');
             let tax = $(this).attr('data-tax');
+            //it checks if user selected is imported or not
             tax = ($(this).attr('data-isimported') === 'true') ? parseInt(tax)+5 : tax;
 
+            // it converts integars into float
             itemPrice = parseFloat(itemPrice);
-            taxAmount = (tax/100) * itemPrice;
+
+            // bascially it is how it is deducting tax for imported products
+            let taxAmount = (tax/100) * itemPrice;
             let priceWithTax = taxAmount + itemPrice;
+            priceWithTax = Math.round(priceWithTax / factor) * factor;
             totalTax = totalTax + taxAmount;
             total = total +  priceWithTax;
 
@@ -100,12 +115,15 @@
             summary += '<p>> 1 <b>'+ itemTitle +': </b> '+ priceWithTax.toFixed(2) +'</p>';
         });
 
+        //to fixed(2) shows only 2 values after point e.g (56.10)
+
         summary += '<p>> <b>Sales Tax:</b> '+ totalTax.toFixed(2) +'</p>';
         summary += '<p>> <b>Total:</b> '+ total.toFixed(2) +'</p>';
 
         $('.summary').html(summary);
     }
     function emptyForm() {
+        // this function makes the item name and price fields emptyy once its saved.
         $('.item-name').val('');
         $('.item-price').val('');
         $('.isImported').prop('checked', false);
